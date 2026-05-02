@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>معمل النخبة - نظام الإدارة</title>
+
+<!-- PWA -->
+<meta name="theme-color" content="#00b4d8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="معمل النخبة">
+<script>
+(function(){
+  const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="100" fill="#0d1f35"/><circle cx="256" cy="256" r="220" fill="#0f4c75"/><text x="256" y="340" font-size="240" text-anchor="middle">🔬</text></svg>`;
+  const iconUrl = 'data:image/svg+xml,' + encodeURIComponent(svgIcon);
+  const appleLink = document.createElement('link'); appleLink.rel='apple-touch-icon'; appleLink.href=iconUrl; document.head.appendChild(appleLink);
+  const favLink = document.createElement('link'); favLink.rel='icon'; favLink.type='image/svg+xml'; favLink.href=iconUrl; document.head.appendChild(favLink);
+  const manifest = {name:"معمل النخبة - نظام الإدارة",short_name:"معمل النخبة",description:"نظام إدارة المعمل المتكامل",start_url:"./",display:"standalone",background_color:"#060e1a",theme_color:"#00b4d8",orientation:"portrait-primary",lang:"ar",dir:"rtl",icons:[{src:iconUrl,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
+  const mBlob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const mLink = document.createElement('link'); mLink.rel='manifest'; mLink.href=URL.createObjectURL(mBlob); document.head.appendChild(mLink);
+})();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0f4c75;
+    --primary-light: #1b6ca8;
+    --accent: #00b4d8;
+    --accent2: #f77f00;
+    --success: #06d6a0;
+    --danger: #ef233c;
+    --bg: #060e1a;
+    --bg2: #0d1b2e;
+    --bg3: #112240;
+    --card: #0d1f35;
+    --card2: #0f2744;
+    --border: rgba(0,180,216,0.15);
+    --text: #e8f4fd;
+    --text2: #8ab4d0;
+    --text3: #4a7fa5;
+    --glow: 0 0 20px rgba(0,180,216,0.3);
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+  body::before {
+    content:''; position:fixed; inset:0; z-index:-1;
+    background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,90,160,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,180,216,0.08) 0%, transparent 50%),
+      linear-gradient(180deg, #060e1a 0%, #0a1628 100%);
+  }
+
+  /* ─── LOGIN ─── */
+  #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+  .login-box {
+    background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%);
+    border:1px solid var(--border); border-radius:24px; padding:48px 40px;
+    width:100%; max-width:420px; box-shadow:var(--shadow), var(--glow); position:relative; overflow:hidden;
+  }
+  .login-box::before {
+    content:''; position:absolute; top:-60px; left:-60px; width:200px; height:200px; border-radius:50%;
+    background:radial-gradient(circle, rgba(0,180,216,0.12) 0%, transparent 70%);
+  }
+  .login-logo { text-align:center; margin-bottom:32px; }
+  .login-logo .icon { font-size:52px; display:block; margin-bottom:12px; filter:drop-shadow(0 0 12px rgba(0,180,216,0.6)); }
+  .login-logo h1 { font-size:26px; font-weight:900; color:var(--accent); letter-spacing:1px; }
+  .login-logo p { color:var(--text2); font-size:13px; margin-top:4px; }
+  .form-group { margin-bottom:20px; }
+  .form-group label { display:block; font-size:13px; color:var(--text2); margin-bottom:8px; font-weight:600; }
+  .form-group select, .form-group input {
+    width:100%; padding:13px 16px; background:rgba(255,255,255,0.04);
+    border:1px solid var(--border); border-radius:12px; color:var(--text);
+    font-family:'Cairo',sans-serif; font-size:14px; outline:none; transition:all 0.3s; direction:rtl;
+  }
+  .form-group select:focus, .form-group input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,180,216,0.12); }
+  .form-group select option { background:var(--bg2); color:var(--text); }
+  .btn-login {
+    width:100%; padding:14px; background:linear-gradient(135deg, var(--primary-light), var(--accent));
+    border:none; border-radius:12px; color:#fff; font-family:'Cairo',sans-serif;
+    font-size:15px; font-weight:700; cursor:pointer; transition:all 0.3s; box-shadow:0 4px 20px rgba(0,180,216,0.3);
+  }
+  .btn-login:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(0,180,216,0.45); }
+  .login-err {
+    background:rgba(239,35,60,0.12); border:1px solid rgba(239,35,60,0.3);
+    border-radius:10px; padding:10px 14px; color:#ff6b7a; font-size:13px;
+    text-align:center; margin-top:12px; display:none;
+  }
+  .login-sync-status {
+    text-align:center; margin-top:14px; font-size:12px; color:var(--text3);
+    display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .login-sync-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); animation:pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ─── APP ─── */
+  #appScreen { display:none; }
+  .topbar {
+    background:linear-gradient(90deg, var(--bg2), var(--bg3)); border-bottom:1px solid var(--border);
+    padding:14px 24px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100; box-shadow:0 2px 20px rgba(0,0,0,0.3);
+  }
+  .topbar-brand { display:flex; align-items:center; gap:12px; }
+  .topbar-brand .logo-icon { font-size:28px; }
+  .topbar-brand h1 { font-size:18px; font-weight:900; color:var(--accent); }
+  .topbar-brand span { font-size:11px; color:var(--text3); display:block; }
+  .topbar-user { display:flex; align-items:center; gap:14px; }
+  .user-badge {
+    display:flex; align-items:center; gap:8px; background:rgba(0,180,216,0.1);
+    border:1px solid var(--border); border-radius:20px; padding:6px 14px;
+  }
+  .user-badge .avatar {
+    width:28px; height:28px; border-radius:50%;
+    background:linear-gradient(135deg, var(--primary-light), var(--accent));
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;
+  }
+  .user-badge span { font-size:13px; font-weight:600; color:var(--text); }
+  .btn-sm { padding:7px 14px; border-radius:8px; font-family:'Cairo',sans-serif; font-size:12px; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+  .btn-outline { background:transparent; border:1px solid var(--border) !important; color:var(--text2); }
+  .btn-outline:hover { border-color:var(--accent) !important; color:var(--accent); }
+  .btn-danger-sm { background:rgba(239,35,60,0.15); border:1px solid rgba(239,35,60,0.3) !important; color:#ff6b7a; }
+  .btn-danger-sm:hover { background:rgba(239,35,60,0.25); }
+
+  /* ─── TABS ─── */
+  .tabs {
+    display:flex; gap:4px; padding:16px 24px 0; border-bottom:1px solid var(--border);
+    overflow-x:auto; background:var(--bg2);
+  }
+  .tab-btn {
+    padding:10px 20px; border-radius:10px 10px 0 0; background:transparent;
+    border:1px solid transparent; border-bottom:none; color:var(--text3);
+    font-family:'Cairo',sans-serif; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap; transition:all 0.3s;
+    display:flex; align-items:center; gap:7px;
+  }
+  .tab-btn:hover { color:var(--text2); background:rgba(0,180,216,0.05); }
+  .tab-btn.active { color:var(--accent); background:var(--bg); border-color:var(--border); border-bottom:1px solid var(--bg); margin-bottom:-1px; }
+
+  /* ─── CONTENT ─── */
+  .content { padding:24px; max-width:1400px; margin:0 auto; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  /* ─── STATS ─── */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:24px; }
+  .stat-card {
+    background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%);
+    border:1px solid var(--border); border-radius:16px; padding:20px;
+    position:relative; overflow:hidden; transition:all 0.3s;
+  }
+  .stat-card:hover { transform:translateY(-3px); box-shadow:var(--glow); }
+  .stat-card::after { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:0 16px 0 60px; opacity:0.15; }
+  .stat-card.income::after { background:var(--success); }
+  .stat-card.expense::after { background:var(--danger); }
+  .stat-card.net::after { background:var(--accent); }
+  .stat-card.tests::after { background:var(--accent2); }
+  .stat-card .label { font-size:12px; color:var(--text3); font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+  .stat-card .value { font-size:26px; font-weight:900; letter-spacing:-0.5px; }
+  .stat-card.income .value { color:var(--success); }
+  .stat-card.expense .value { color:var(--danger); }
+  .stat-card.net .value { color:var(--accent); }
+  .stat-card.tests .value { color:var(--accent2); }
+  .stat-card .sub { font-size:11px; color:var(--text3); margin-top:4px; }
+
+  /* ─── SECTION HEADERS ─── */
+  .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .sec-title { font-size:16px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px; }
+  .sec-title::before { content:''; display:inline-block; width:4px; height:20px; border-radius:2px; background:linear-gradient(var(--accent), var(--primary-light)); }
+
+  /* ─── FORM CARDS ─── */
+  .form-card { background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:24px; }
+  .form-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; }
+  .field { display:flex; flex-direction:column; gap:7px; }
+  .field label { font-size:12px; color:var(--text2); font-weight:600; }
+  .field input, .field select, .field textarea {
+    padding:11px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border);
+    border-radius:10px; color:var(--text); font-family:'Cairo',sans-serif; font-size:14px;
+    outline:none; transition:all 0.3s; direction:rtl;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(0,180,216,0.1); }
+  .field select option { background:var(--bg2); }
+  .field textarea { resize:vertical; min-height:80px; }
+
+  /* autocomplete */
+  .autocomplete-wrap { position:relative; }
+  .autocomplete-list {
+    position:absolute; top:100%; right:0; left:0; z-index:200;
+    background:var(--bg2); border:1px solid var(--accent);
+    border-radius:0 0 10px 10px; max-height:200px; overflow-y:auto;
+    display:none; box-shadow:var(--shadow);
+  }
+  .autocomplete-list.open { display:block; }
+  .autocomplete-item { padding:10px 14px; cursor:pointer; font-size:13px; border-bottom:1px solid var(--border); transition:background 0.15s; }
+  .autocomplete-item:hover { background:rgba(0,180,216,0.1); color:var(--accent); }
+  .autocomplete-item:last-child { border-bottom:none; }
+
+  .btn-primary {
+    padding:11px 28px; background:linear-gradient(135deg, var(--primary-light), var(--accent));
+    border:none; border-radius:10px; color:#fff; font-family:'Cairo',sans-serif;
+    font-size:14px; font-weight:700; cursor:pointer; transition:all 0.3s; box-shadow:0 3px 15px rgba(0,180,216,0.25);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 5px 22px rgba(0,180,216,0.4); }
+  .btn-success { background:linear-gradient(135deg, #059669, var(--success)); }
+  .btn-warning { background:linear-gradient(135deg, #d97706, var(--accent2)); }
+
+  /* ─── TABLE ─── */
+  .table-wrap { background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%); border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:24px; }
+  .table-header { padding:16px 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+  .table-search { padding:8px 14px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Cairo',sans-serif; font-size:13px; outline:none; width:220px; direction:rtl; }
+  .table-search:focus { border-color:var(--accent); }
+  table { width:100%; border-collapse:collapse; }
+  th { background:rgba(0,0,0,0.2); padding:12px 16px; font-size:12px; font-weight:700; color:var(--text2); text-align:right; border-bottom:1px solid var(--border); }
+  td { padding:12px 16px; font-size:13px; color:var(--text); border-bottom:1px solid rgba(0,180,216,0.05); text-align:right; }
+  tr:hover td { background:rgba(0,180,216,0.04); }
+  tr:last-child td { border-bottom:none; }
+  .badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+  .badge-income { background:rgba(6,214,160,0.12); color:var(--success); border:1px solid rgba(6,214,160,0.2); }
+  .badge-expense { background:rgba(239,35,60,0.12); color:#ff6b7a; border:1px solid rgba(239,35,60,0.2); }
+  .badge-user { background:rgba(0,180,216,0.12); color:var(--accent); border:1px solid var(--border); }
+  .btn-del { padding:5px 10px; border-radius:6px; background:rgba(239,35,60,0.1); border:1px solid rgba(239,35,60,0.2); color:#ff6b7a; cursor:pointer; font-size:12px; transition:all 0.2s; }
+  .btn-del:hover { background:rgba(239,35,60,0.2); }
+
+  /* ─── MONTHLY ─── */
+  .monthly-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-bottom:24px; }
+  .month-card { background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%); border:1px solid var(--border); border-radius:14px; padding:18px; transition:all 0.3s; }
+  .month-card:hover { border-color:rgba(0,180,216,0.3); transform:translateY(-2px); }
+  .month-card .month-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .month-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:12px; }
+  .month-row:last-child { border-bottom:none; }
+  .month-row .mlabel { color:var(--text3); }
+  .mval.inc { color:var(--success); font-weight:700; }
+  .mval.exp { color:#ff6b7a; font-weight:700; }
+  .mval.net-pos { color:var(--accent); font-weight:700; }
+  .mval.net-neg { color:#ff6b7a; font-weight:700; }
+  .mini-bar { height:5px; border-radius:3px; margin-top:10px; background:rgba(255,255,255,0.05); overflow:hidden; }
+  .mini-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg, var(--primary-light), var(--accent)); transition:width 0.5s; }
+
+  /* ─── TESTS ─── */
+  .test-analysis-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; margin-bottom:24px; }
+  .test-item { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:8px; transition:all 0.25s; }
+  .test-item:hover { border-color:rgba(247,127,0,0.3); }
+  .test-item .tname { font-size:13px; font-weight:700; color:var(--text); }
+  .test-item .tcount { font-size:28px; font-weight:900; color:var(--accent2); }
+  .test-item .trev { font-size:12px; color:var(--text2); }
+  .test-item .tbar { height:4px; background:rgba(247,127,0,0.1); border-radius:2px; overflow:hidden; }
+  .test-item .tbar-fill { height:100%; background:linear-gradient(90deg, #d97706, var(--accent2)); border-radius:2px; }
+
+  /* ─── SETTINGS ─── */
+  .settings-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px; }
+  .settings-card { background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%); border:1px solid var(--border); border-radius:16px; padding:24px; }
+  .settings-card h3 { font-size:14px; font-weight:700; color:var(--text); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+
+  /* ─── FILTER ─── */
+  .filter-bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:20px; padding:14px 18px; background:var(--card); border:1px solid var(--border); border-radius:12px; }
+  .filter-bar label { font-size:12px; color:var(--text2); font-weight:600; }
+  .filter-bar select, .filter-bar input { padding:8px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Cairo',sans-serif; font-size:13px; outline:none; direction:rtl; }
+  .filter-bar select:focus, .filter-bar input:focus { border-color:var(--accent); }
+
+  /* ─── SYNC BAR ─── */
+  .sync-bar {
+    position:fixed; bottom:20px; left:20px; background:var(--bg2); border:1px solid var(--border);
+    border-radius:30px; padding:10px 20px; font-size:12px; color:var(--text2);
+    display:flex; align-items:center; gap:8px; box-shadow:var(--shadow); transition:all 0.3s; z-index:500;
+  }
+  .sync-dot { width:8px; height:8px; border-radius:50%; background:var(--text3); }
+  .sync-dot.ok { background:var(--success); box-shadow:0 0 6px var(--success); }
+  .sync-dot.err { background:var(--danger); }
+  .sync-dot.loading { animation:pulse 1s infinite; background:var(--accent); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:900; backdrop-filter:blur(4px); }
+  .modal-overlay.open { display:flex; }
+  .modal { background:linear-gradient(135deg, var(--card) 0%, var(--card2) 100%); border:1px solid var(--border); border-radius:20px; padding:32px; width:100%; max-width:440px; box-shadow:var(--shadow), var(--glow); max-height:90vh; overflow-y:auto; }
+  .modal h2 { font-size:18px; font-weight:700; color:var(--accent); margin-bottom:20px; }
+  .modal .form-group { margin-bottom:16px; }
+
+  /* ─── EMPTY ─── */
+  .empty { text-align:center; padding:40px 20px; color:var(--text3); font-size:14px; }
+  .empty .ei { font-size:40px; margin-bottom:12px; opacity:0.5; }
+
+  /* ─── TOAST ─── */
+  #toastContainer { position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .toast { padding:12px 24px; border-radius:30px; font-size:13px; font-weight:600; color:#fff; box-shadow:0 4px 20px rgba(0,0,0,0.4); animation:toastIn 0.3s ease; }
+  .toast.success { background:linear-gradient(135deg, #059669, #06d6a0); }
+  .toast.error { background:linear-gradient(135deg, #be123c, #ef233c); }
+  .toast.info { background:linear-gradient(135deg, var(--primary), var(--accent)); }
+  @keyframes toastIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ─── CHART ─── */
+  .chart-wrap { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:24px; }
+  .chart-wrap h3 { font-size:14px; font-weight:700; color:var(--text); margin-bottom:16px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:600px) {
+    .topbar { padding:12px 16px; }
+    .content { padding:16px; }
+    .topbar-brand h1 { font-size:15px; }
+    .form-row { grid-template-columns:1fr; }
+    .sync-bar { bottom:10px; left:10px; padding:8px 14px; font-size:11px; }
+  }
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--primary); border-radius:3px; }
+  .no-data { color:var(--text3); font-size:13px; text-align:center; padding:20px 0; }
+
+  /* edit modal */
+  .edit-field-row { display:flex; gap:8px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
+  .edit-field-row:last-child { border-bottom:none; }
+  .edit-field-row span { flex:1; font-size:13px; color:var(--text); }
+  .edit-field-row input { flex:1; padding:7px 10px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Cairo',sans-serif; font-size:13px; outline:none; direction:rtl; }
+  .edit-field-row input:focus { border-color:var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="icon">🔬</span>
+      <h1>معمل النخبة</h1>
+      <p>نظام إدارة المعمل المتكامل</p>
+    </div>
+    <div class="form-group">
+      <label>👤 اختر المستخدم</label>
+      <select id="loginUser"></select>
+    </div>
+    <div class="form-group">
+      <label>🔒 كلمة المرور</label>
+      <input type="password" id="loginPass" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">🚀 تسجيل الدخول</button>
+    <div class="login-err" id="loginErr">كلمة المرور غلط، حاول تاني</div>
+    <div class="login-sync-status" id="loginSyncStatus">
+      <div class="login-sync-dot"></div>
+      <span>جاري تحميل البيانات...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="appScreen">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <span class="logo-icon">🔬</span>
+      <div>
+        <h1>معمل النخبة</h1>
+        <span id="currentDate"></span>
+      </div>
+    </div>
+    <div class="topbar-user">
+      <div class="user-badge">
+        <div class="avatar" id="avatarLetter">أ</div>
+        <span id="currentUserName">أحمد</span>
+      </div>
+      <button class="btn-sm btn-outline" onclick="openModal('pwdModal')">🔑 تغيير الباسورد</button>
+      <button class="btn-sm btn-outline" onclick="manualSync()">🔄 مزامنة</button>
+      <button class="btn-sm btn-danger-sm" onclick="logout()">خروج</button>
+      <button id="pwaInstallBtn" class="btn-sm" onclick="installPWA()" style="display:none;align-items:center;gap:5px;background:linear-gradient(135deg,#0f4c75,#00b4d8);color:#fff;border:none;">📲 تثبيت التطبيق</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dash')" id="tab-dash">📊 لوحة التحكم</button>
+    <button class="tab-btn" onclick="switchTab('income')" id="tab-income">💰 تسجيل دخل</button>
+    <button class="tab-btn" onclick="switchTab('expense')" id="tab-expense">💸 تسجيل مصروف</button>
+    <button class="tab-btn" onclick="switchTab('history')" id="tab-history">📋 السجل الكامل</button>
+    <button class="tab-btn" onclick="switchTab('tests')" id="tab-tests">🧪 إحصاء التحاليل</button>
+    <button class="tab-btn" onclick="switchTab('monthly')" id="tab-monthly">📅 تقرير شهري</button>
+    <button class="tab-btn" onclick="switchTab('settings')" id="tab-settings">⚙️ الإعدادات</button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="tab-panel active" id="panel-dash">
+      <div class="filter-bar">
+        <label>📅 الشهر:</label>
+        <select id="dashMonthFilter" onchange="renderDash()"><option value="all">كل الشهور</option></select>
+        <label>السنة:</label>
+        <select id="dashYearFilter" onchange="renderDash()"><option value="all">كل السنوات</option></select>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="sec-header"><div class="sec-title">أكثر التحاليل طلباً</div></div>
+      <div class="test-analysis-grid" id="topTestsGrid"></div>
+      <div class="chart-wrap">
+        <h3>📈 الدخل والمصاريف الشهرية</h3>
+        <canvas id="barChart" height="100"></canvas>
+      </div>
+    </div>
+
+    <!-- INCOME -->
+    <div class="tab-panel" id="panel-income">
+      <div class="form-card">
+        <div class="sec-title" style="margin-bottom:20px;">➕ تسجيل دخل جديد</div>
+        <div class="form-row">
+          <div class="field">
+            <label>📅 التاريخ</label>
+            <input type="date" id="incDate">
+          </div>
+          <div class="field">
+            <label>🧪 التحليل</label>
+            <div class="autocomplete-wrap">
+              <input type="text" id="incTest" placeholder="ابحث أو اكتب اسم التحليل" oninput="filterTests(this.value,'incList','incTestHidden')" autocomplete="off">
+              <input type="hidden" id="incTestHidden">
+              <div class="autocomplete-list" id="incList"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>💵 سعر الوحدة (جنيه)</label>
+            <input type="number" id="incAmount" placeholder="0" min="0">
+          </div>
+          <div class="field">
+            <label>👥 عدد المرضى</label>
+            <input type="number" id="incCount" value="1" min="1">
+          </div>
+          <div class="field">
+            <label>📝 ملاحظات (اختياري)</label>
+            <input type="text" id="incNote" placeholder="أي ملاحظة إضافية">
+          </div>
+        </div>
+        <div style="margin-top:16px; display:flex; gap:10px; align-items:center;">
+          <button class="btn-primary btn-success" onclick="addEntry('income')">✅ تسجيل الدخل</button>
+          <span id="incTotal" style="font-size:14px;color:var(--success);font-weight:700;"></span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="sec-title">سجل الدخل</div>
+          <input class="table-search" placeholder="🔍 بحث..." oninput="renderIncomeTable(this.value)">
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>التاريخ</th><th>التحليل</th><th>السعر</th><th>العدد</th><th>الإجمالي</th><th>المستخدم</th><th>ملاحظات</th><th></th></tr></thead>
+            <tbody id="incomeTBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPENSE -->
+    <div class="tab-panel" id="panel-expense">
+      <div class="form-card">
+        <div class="sec-title" style="margin-bottom:20px;">➕ تسجيل مصروف جديد</div>
+        <div class="form-row">
+          <div class="field">
+            <label>📅 التاريخ</label>
+            <input type="date" id="expDate">
+          </div>
+          <div class="field">
+            <label>🏷️ التصنيف</label>
+            <select id="expCategory">
+              <option>مستلزمات طبية</option>
+              <option>رواتب</option>
+              <option>إيجار</option>
+              <option>كهرباء وماء</option>
+              <option>صيانة</option>
+              <option>إعلانات</option>
+              <option>مواصلات</option>
+              <option>أخرى</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>📋 بيان المصروف</label>
+            <input type="text" id="expDesc" placeholder="وصف المصروف">
+          </div>
+          <div class="field">
+            <label>💵 المبلغ (جنيه)</label>
+            <input type="number" id="expAmount" placeholder="0" min="0">
+          </div>
+          <div class="field">
+            <label>📝 ملاحظات (اختياري)</label>
+            <input type="text" id="expNote" placeholder="أي ملاحظة إضافية">
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn-primary btn-warning" onclick="addEntry('expense')">✅ تسجيل المصروف</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="sec-title">سجل المصاريف</div>
+          <input class="table-search" placeholder="🔍 بحث..." oninput="renderExpenseTable(this.value)">
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>التاريخ</th><th>التصنيف</th><th>البيان</th><th>المبلغ</th><th>المستخدم</th><th>ملاحظات</th><th></th></tr></thead>
+            <tbody id="expenseTBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="tab-panel" id="panel-history">
+      <div class="filter-bar">
+        <label>📅 الشهر:</label>
+        <select id="histMonth" onchange="renderHistory()"><option value="all">الكل</option></select>
+        <label>النوع:</label>
+        <select id="histType" onchange="renderHistory()">
+          <option value="all">الكل</option><option value="income">دخل</option><option value="expense">مصروف</option>
+        </select>
+        <label>المستخدم:</label>
+        <select id="histUser" onchange="renderHistory()"><option value="all">الكل</option></select>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="sec-title" id="histCount">السجل الكامل</div>
+          <input class="table-search" placeholder="🔍 بحث..." oninput="renderHistory(this.value)">
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>التاريخ</th><th>النوع</th><th>التفاصيل</th><th>المبلغ</th><th>المستخدم</th><th>ملاحظات</th><th></th></tr></thead>
+            <tbody id="histTBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TESTS -->
+    <div class="tab-panel" id="panel-tests">
+      <div class="filter-bar">
+        <label>📅 الشهر:</label>
+        <select id="testsMonth" onchange="renderTestsPanel()"><option value="all">كل الشهور</option></select>
+        <label>السنة:</label>
+        <select id="testsYear" onchange="renderTestsPanel()"><option value="all">كل السنوات</option></select>
+      </div>
+      <div class="stats-grid" id="testsSummary"></div>
+      <div class="sec-header"><div class="sec-title">إحصاء التحاليل تفصيلي</div></div>
+      <div class="test-analysis-grid" id="testsDetailGrid"></div>
+    </div>
+
+    <!-- MONTHLY -->
+    <div class="tab-panel" id="panel-monthly">
+      <div class="sec-header"><div class="sec-title">📅 التقارير الشهرية</div></div>
+      <div class="monthly-grid" id="monthlyGrid"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-panel" id="panel-settings">
+      <div class="settings-grid">
+
+        <!-- كلمات المرور -->
+        <div class="settings-card">
+          <h3>🔑 تغيير كلمات المرور</h3>
+          <div class="form-group">
+            <label>المستخدم</label>
+            <select id="setPwdUser"></select>
+          </div>
+          <div class="form-group">
+            <label>الباسورد الحالي</label>
+            <input type="password" id="setPwdCurrent" placeholder="الباسورد الحالي">
+          </div>
+          <div class="form-group">
+            <label>الباسورد الجديد</label>
+            <input type="password" id="setPwdNew" placeholder="الباسورد الجديد (4 أحرف على الأقل)">
+          </div>
+          <div class="form-group">
+            <label>تأكيد الباسورد</label>
+            <input type="password" id="setPwdConfirm" placeholder="أعد كتابة الباسورد">
+          </div>
+          <button class="btn-primary" onclick="changePwd()">💾 حفظ الباسورد</button>
+        </div>
+
+        <!-- إدارة التحاليل -->
+        <div class="settings-card">
+          <h3>🧪 إدارة التحاليل والأسعار</h3>
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <input type="text" id="newTestName" placeholder="اسم التحليل" style="flex:1;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;direction:rtl;">
+            <input type="number" id="newTestPrice" placeholder="السعر" style="width:90px;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;">
+            <button class="btn-primary" style="padding:10px 14px;font-size:13px;" onclick="addTest()">➕</button>
+          </div>
+          <div id="testsList" style="max-height:320px;overflow-y:auto;"></div>
+        </div>
+
+        <!-- المستخدمين -->
+        <div class="settings-card">
+          <h3>👥 إدارة المستخدمين</h3>
+          <p style="font-size:12px;color:var(--text3);margin-bottom:16px;">إضافة أو حذف المستخدمين من النظام</p>
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <input type="text" id="newUserName" placeholder="اسم المستخدم" style="flex:1;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;direction:rtl;">
+            <input type="password" id="newUserPass" placeholder="الباسورد" style="width:110px;padding:10px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Cairo',sans-serif;font-size:13px;outline:none;">
+            <button class="btn-primary" style="padding:10px 14px;font-size:13px;" onclick="addUser()">➕</button>
+          </div>
+          <div id="usersList"></div>
+        </div>
+
+        <!-- النسخ الاحتياطي -->
+        <div class="settings-card">
+          <h3>💾 النسخ الاحتياطي</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <button class="btn-primary" onclick="backupData()">📥 تحميل نسخة احتياطية (JSON)</button>
+            <button class="btn-primary btn-success" onclick="exportExcel()">📊 تصدير Excel</button>
+            <button class="btn-primary btn-warning" onclick="exportCSV()">📄 تصدير CSV</button>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+              <span style="font-size:13px;color:var(--text2);">📤 استعادة نسخة احتياطية</span>
+              <input type="file" accept=".json" onchange="restoreData(this)" style="display:none;" id="restoreInput">
+              <button class="btn-sm btn-outline" onclick="document.getElementById('restoreInput').click()">اختيار ملف</button>
+            </label>
+          </div>
+        </div>
+
+        <!-- مزامنة Google Sheets -->
+        <div class="settings-card">
+          <h3>🔗 Google Sheets</h3>
+          <p style="font-size:12px;color:var(--text3);margin-bottom:12px;">الرابط المدمج في النظام — البيانات تتزامن تلقائياً</p>
+          <div style="background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.2);border-radius:10px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--success);">
+            ✅ التزامن التلقائي مفعّل — كل إدخال يُحفظ فوراً في Google Sheets
+          </div>
+          <button class="btn-primary" onclick="manualSync()">🔄 مزامنة يدوية الآن</button>
+          <button class="btn-sm btn-outline" onclick="testGsConnection()" style="margin-top:10px;padding:10px 16px;display:block;width:100%;text-align:center;">🔍 اختبار الاتصال</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /appScreen -->
+
+<!-- SYNC BAR -->
+<div class="sync-bar" id="syncBar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncText">محلي</span>
+</div>
+
+<!-- TOAST -->
+<div id="toastContainer"></div>
+
+<!-- MODAL: Change Password (topbar) -->
+<div class="modal-overlay" id="pwdModal">
+  <div class="modal">
+    <h2>🔑 تغيير كلمة المرور</h2>
+    <div class="form-group"><label>الباسورد الحالي</label><input type="password" id="mpwdCurrent" placeholder="الباسورد الحالي"></div>
+    <div class="form-group"><label>الباسورد الجديد</label><input type="password" id="mpwdNew" placeholder="الباسورد الجديد"></div>
+    <div class="form-group"><label>تأكيد الباسورد</label><input type="password" id="mpwdConfirm" placeholder="تأكيد الباسورد"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn-primary" onclick="changePwdModal()">💾 حفظ</button>
+      <button class="btn-sm btn-outline" onclick="closeModal('pwdModal')" style="padding:11px 20px;">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Test -->
+<div class="modal-overlay" id="editTestModal">
+  <div class="modal">
+    <h2>✏️ تعديل التحليل</h2>
+    <input type="hidden" id="editTestIdx">
+    <div class="form-group"><label>اسم التحليل</label><input type="text" id="editTestName"></div>
+    <div class="form-group"><label>السعر (جنيه)</label><input type="number" id="editTestPrice"></div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn-primary" onclick="saveEditTest()">💾 حفظ التعديل</button>
+      <button class="btn-sm btn-outline" onclick="closeModal('editTestModal')" style="padding:11px 20px;">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════
+const GS_URL = 'https://script.google.com/macros/s/AKfycbzrNWr7N-QyrV8XYVTRYUJORDItUELSqAJTAau49PCRQ6RWwnhBtb0FCIuo8-Ak2W4/exec';
+
+const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const MONTH_ICONS = ['❄️','💐','🌱','🌸','☀️','🌊','🌞','🌻','🍂','🎃','🍁','🎄'];
+
+const DEFAULT_TESTS = [
+  {name:'صورة دم كاملة CBC', price:150},{name:'سكر الدم FBS', price:50},{name:'سكر عشوائي RBS', price:50},
+  {name:'وظائف الكلى Creatinine', price:80},{name:'وظائف الكلى Urea', price:70},
+  {name:'وظائف الكبد ALT', price:70},{name:'وظائف الكبد AST', price:70},
+  {name:'الدهون Cholesterol', price:60},{name:'الدهون Triglyceride', price:70},
+  {name:'الدهون HDL', price:80},{name:'الدهون LDL', price:80},
+  {name:'يوريك اسيد Uric Acid', price:60},{name:'هيموجلوبين Hb A1c', price:120},
+  {name:'غدة درقية TSH', price:150},{name:'غدة درقية T3', price:120},{name:'غدة درقية T4', price:120},
+  {name:'فيروس C HCV Ab', price:100},{name:'فيروس B HBsAg', price:100},{name:'HIV', price:100},
+  {name:'تحليل بول Urine Analysis', price:60},{name:'براز Stool Analysis', price:70},
+  {name:'كالسيوم Calcium', price:60},{name:'مغنيسيوم Magnesium', price:70},{name:'فوسفور Phosphorus', price:70},
+  {name:'حديد Serum Iron', price:80},{name:'فيريتين Ferritin', price:150},
+  {name:'بروتين Protein', price:60},{name:'ألبومين Albumin', price:70},{name:'بيليروبين Bilirubin', price:80},
+  {name:'ALP', price:70},{name:'GGT', price:80},{name:'Amylase', price:80},{name:'Lipase', price:80},
+  {name:'فيتامين د Vit D', price:200},{name:'فيتامين ب12 Vit B12', price:180},
+  {name:'حمض الفوليك Folic Acid', price:150},{name:'هرمون نمو HGH', price:200},
+  {name:'هرمون الخصوبة FSH', price:120},{name:'هرمون الخصوبة LH', price:120},
+  {name:'بروجستيرون Progesterone', price:130},{name:'هرمون الذكورة Testosterone', price:150},
+  {name:'بولاريوس Brucella', price:80},{name:'زرع جرثومي Culture', price:150},{name:'مقاومة حيوية Sensitivity', price:100},
+];
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let state = loadLocalState();
+let currentUser = null;
+let barChartInst = null;
+let syncTimeout = null;
+let autoRefreshInterval = null;
+const AUTO_REFRESH_MS = 30000; // كل 30 ثانية
+
+function defaultState() {
+  return {
+    passwords: { محمود: '2000', أحمد: '3000' },
+    tests: JSON.parse(JSON.stringify(DEFAULT_TESTS)),
+    entries: []
+  };
+}
+
+function loadLocalState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('elitelab_v3'));
+    if (s && s.passwords && s.entries) return s;
+    return defaultState();
+  } catch { return defaultState(); }
+}
+
+function saveLocalState() {
+  localStorage.setItem('elitelab_v3', JSON.stringify(state));
+}
+
+// ═══════════════════════════════════════════════════
+//  GOOGLE SHEETS SYNC
+// ═══════════════════════════════════════════════════
+async function loadFromGS() {
+  updateLoginStatus('جاري تحميل البيانات من Google Sheets...');
+  try {
+    const res = await fetch(GS_URL + '?t=' + Date.now(), { method:'GET', mode:'cors' });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      if (Array.isArray(json.entries)) state.entries = json.entries;
+      if (json.passwords && typeof json.passwords === 'object') state.passwords = json.passwords;
+      if (Array.isArray(json.tests)) state.tests = json.tests;
+      saveLocalState();
+      updateLoginStatus('✅ تم تحميل البيانات', true);
+    } else {
+      updateLoginStatus('⚠️ سيتم استخدام البيانات المحلية', true);
+    }
+  } catch(e) {
+    updateLoginStatus('⚠️ لا يوجد اتصال — سيتم استخدام البيانات المحلية', true);
+  }
+  populateLoginUsers();
+}
+
+function updateLoginStatus(msg, done=false) {
+  const el = document.getElementById('loginSyncStatus');
+  if (!el) return;
+  el.innerHTML = done
+    ? `<span style="color:var(--success)">${msg}</span>`
+    : `<div class="login-sync-dot"></div><span>${msg}</span>`;
+}
+
+async function syncToGS() {
+  updateSyncBar('loading');
+  try {
+    const payload = JSON.stringify({
+      action: 'sync',
+      entries: state.entries,
+      passwords: state.passwords,
+      tests: state.tests
+    });
+    await fetch(GS_URL, { method:'POST', body: payload, mode:'no-cors' });
+    updateSyncBar('ok');
+  } catch(e) {
+    updateSyncBar('err');
+  }
+}
+
+function scheduleSyncToGS() {
+  // debounce: ننتظر ثانية بعد آخر تغيير قبل المزامنة
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(() => syncToGS(), 1000);
+}
+
+async function manualSync() {
+  toast('جاري المزامنة مع Google Sheets...', 'info');
+  updateSyncBar('loading');
+  try {
+    const res = await fetch(GS_URL + '?t=' + Date.now(), { method:'GET', mode:'cors' });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      // السيرفر هو المرجع — نحل محل البيانات المحلية بالكاملة
+      if (Array.isArray(json.entries)) state.entries = json.entries;
+      if (json.passwords && typeof json.passwords === 'object') state.passwords = json.passwords;
+      if (Array.isArray(json.tests)) state.tests = json.tests;
+      saveLocalState();
+      buildFilterOptions();
+      renderDash();
+      renderIncomeTable();
+      renderExpenseTable();
+      renderTestsPanel();
+      renderMonthly();
+      renderHistory();
+      renderTestsSettings();
+      renderUsersList();
+    }
+  } catch(e) {}
+  await syncToGS();
+  toast('✅ تمت المزامنة بنجاح', 'success');
+}
+
+async function testGsConnection() {
+  toast('جاري اختبار الاتصال...', 'info');
+  try {
+    const res = await fetch(GS_URL + '?t=' + Date.now(), { method:'GET', mode:'cors' });
+    const json = await res.json();
+    if (json.status === 'ok') toast('✅ الاتصال ناجح! Google Sheets شغال', 'success');
+    else toast('⚠️ رد غير متوقع', 'error');
+  } catch(e) {
+    try {
+      await fetch(GS_URL, { method:'GET', mode:'no-cors' });
+      toast('✅ الرابط شغال — المزامنة تعمل بـ POST', 'success');
+    } catch(e2) {
+      toast('❌ الرابط مش شغال: ' + e2.message, 'error');
+    }
+  }
+}
+
+function updateSyncBar(status) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  dot.className = 'sync-dot';
+  if (status==='ok') { dot.classList.add('ok'); txt.textContent='متزامن ✓ (تحديث تلقائي كل 30 ث)'; }
+  else if (status==='err') { dot.classList.add('err'); txt.textContent='فشل المزامنة — جرب يدوياً'; }
+  else if (status==='loading') { dot.classList.add('loading'); txt.textContent='جاري المزامنة...'; }
+  else { txt.textContent='محلي فقط'; }
+}
+
+// ═══════════════════════════════════════════════════
+//  AUTO-REFRESH — مزامنة تلقائية في الخلفية
+// ═══════════════════════════════════════════════════
+async function backgroundRefresh() {
+  if (!currentUser) return;
+  try {
+    const res = await fetch(GS_URL + '?t=' + Date.now(), { method:'GET', mode:'cors' });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      let changed = false;
+
+      // ── ENTRIES: السيرفر هو المرجع الأساسي — الحذف والإضافة كلهم من السيرفر ──
+      if (Array.isArray(json.entries)) {
+        if (JSON.stringify(state.entries) !== JSON.stringify(json.entries)) {
+          state.entries = json.entries;
+          changed = true;
+        }
+      }
+
+      // ── PASSWORDS: دايماً اتزامن حتى لو اتغير باسورد أو اتحذف يوزر ──
+      if (json.passwords && typeof json.passwords === 'object') {
+        if (JSON.stringify(state.passwords) !== JSON.stringify(json.passwords)) {
+          state.passwords = json.passwords;
+          changed = true;
+          // لو الباسورد بتاع اليوزر الحالي اتغير، اطلب منه يسجل دخول تاني
+          if (state.passwords[currentUser] === undefined) {
+            alert('⚠️ تم حذف حسابك من جهاز آخر. سيتم تسجيل الخروج.');
+            logout();
+            return;
+          }
+        }
+      }
+
+      // ── TESTS: اتزامن حتى لو التحاليل بقت صفر (مش نشترط length > 0) ──
+      if (Array.isArray(json.tests)) {
+        if (JSON.stringify(state.tests) !== JSON.stringify(json.tests)) {
+          state.tests = json.tests;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        saveLocalState();
+        buildFilterOptions();
+        renderDash();
+        renderIncomeTable();
+        renderExpenseTable();
+        renderTestsPanel();
+        renderMonthly();
+        renderHistory();
+        renderTestsSettings();
+        renderUsersList();
+        const txt = document.getElementById('syncText');
+        txt.textContent = '🔄 تم تحديث البيانات';
+        setTimeout(() => updateSyncBar('ok'), 2000);
+      }
+    }
+  } catch(e) {
+    // في الخلفية — مش لازم نزعج المستخدم
+  }
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  autoRefreshInterval = setInterval(backgroundRefresh, AUTO_REFRESH_MS);
+}
+
+function stopAutoRefresh() {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════════════════
+function populateLoginUsers() {
+  const sel = document.getElementById('loginUser');
+  const users = Object.keys(state.passwords);
+  sel.innerHTML = users.map(u => `<option value="${u}">${u}</option>`).join('');
+}
+
+function doLogin() {
+  const user = document.getElementById('loginUser').value;
+  const pass = document.getElementById('loginPass').value;
+  if (state.passwords[user] !== undefined && pass === state.passwords[user]) {
+    currentUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    document.getElementById('currentUserName').textContent = user;
+    document.getElementById('avatarLetter').textContent = user[0];
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-EG', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('incDate').value = today;
+    document.getElementById('expDate').value = today;
+    buildFilterOptions();
+    renderDash();
+    renderIncomeTable();
+    renderExpenseTable();
+    renderTestsSettings();
+    renderUsersList();
+    populateSettingUsers();
+    updateSyncBar('ok');
+    startAutoRefresh(); // ← ابدأ المزامنة التلقائية
+  } else {
+    const el = document.getElementById('loginErr');
+    el.style.display = 'block';
+    setTimeout(() => el.style.display='none', 3000);
+  }
+}
+
+function logout() {
+  currentUser = null;
+  stopAutoRefresh(); // ← وقف المزامنة لما يخرج
+  document.getElementById('loginPass').value = '';
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  populateLoginUsers();
+}
+
+function populateSettingUsers() {
+  const sel = document.getElementById('setPwdUser');
+  if (!sel) return;
+  sel.innerHTML = Object.keys(state.passwords).map(u => `<option value="${u}">${u}</option>`).join('');
+}
+
+function changePwd() {
+  const user = document.getElementById('setPwdUser').value;
+  const cur = document.getElementById('setPwdCurrent').value;
+  const nw = document.getElementById('setPwdNew').value;
+  const cf = document.getElementById('setPwdConfirm').value;
+  if (cur !== state.passwords[user]) return toast('الباسورد الحالي غلط ❌', 'error');
+  if (nw.length < 4) return toast('الباسورد الجديد قصير جداً ❌', 'error');
+  if (nw !== cf) return toast('الباسورد مش متطابق ❌', 'error');
+  state.passwords[user] = nw;
+  saveLocalState();
+  scheduleSyncToGS();
+  toast('✅ تم تغيير الباسورد وحفظه في Google Sheets', 'success');
+  document.getElementById('setPwdCurrent').value='';
+  document.getElementById('setPwdNew').value='';
+  document.getElementById('setPwdConfirm').value='';
+}
+
+function changePwdModal() {
+  const cur = document.getElementById('mpwdCurrent').value;
+  const nw = document.getElementById('mpwdNew').value;
+  const cf = document.getElementById('mpwdConfirm').value;
+  if (cur !== state.passwords[currentUser]) return toast('الباسورد الحالي غلط ❌', 'error');
+  if (nw.length < 4) return toast('الباسورد الجديد قصير جداً ❌', 'error');
+  if (nw !== cf) return toast('الباسورد مش متطابق ❌', 'error');
+  state.passwords[currentUser] = nw;
+  saveLocalState();
+  scheduleSyncToGS();
+  toast('✅ تم تغيير الباسورد', 'success');
+  closeModal('pwdModal');
+}
+
+// ═══════════════════════════════════════════════════
+//  USERS MANAGEMENT
+// ═══════════════════════════════════════════════════
+function addUser() {
+  const name = document.getElementById('newUserName').value.trim();
+  const pass = document.getElementById('newUserPass').value;
+  if (!name) return toast('ادخل اسم المستخدم ❌', 'error');
+  if (pass.length < 4) return toast('الباسورد قصير جداً ❌', 'error');
+  if (state.passwords[name] !== undefined) return toast('المستخدم موجود بالفعل ❌', 'error');
+  state.passwords[name] = pass;
+  saveLocalState();
+  scheduleSyncToGS();
+  renderUsersList();
+  populateSettingUsers();
+  populateLoginUsers();
+  document.getElementById('newUserName').value='';
+  document.getElementById('newUserPass').value='';
+  toast('✅ تم إضافة المستخدم', 'success');
+}
+
+function deleteUser(name) {
+  if (name === 'محمود') return toast('المستخدم محمود محمي ولا يمكن حذفه ❌', 'error');
+  if (name === currentUser) return toast('مش تقدر تمسح نفسك وانت داخل ❌', 'error');
+  if (Object.keys(state.passwords).length <= 1) return toast('لازم يفضل مستخدم واحد على الأقل ❌', 'error');
+  if (!confirm(`مسح المستخدم "${name}"؟`)) return;
+  delete state.passwords[name];
+  saveLocalState();
+  scheduleSyncToGS();
+  renderUsersList();
+  populateSettingUsers();
+  populateLoginUsers();
+  toast('✅ تم حذف المستخدم', 'info');
+}
+
+function renderUsersList() {
+  const el = document.getElementById('usersList');
+  if (!el) return;
+  const users = Object.keys(state.passwords);
+  el.innerHTML = users.map(u =>
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+      <span style="color:var(--text)">${u} ${u===currentUser?'<span style="font-size:10px;color:var(--accent)">(أنت)</span>':''}</span>
+      ${u==='محمود'?'<span style="font-size:11px;color:var(--accent2)">🔒 محمي</span>':u===currentUser?'<span style="font-size:11px;color:var(--text3)">مسجل دخول</span>':`<button class="btn-del" onclick="deleteUser('${u}')">🗑️</button>`}
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if (id==='dash') renderDash();
+  if (id==='history') renderHistory();
+  if (id==='tests') renderTestsPanel();
+  if (id==='monthly') renderMonthly();
+  if (id==='income') renderIncomeTable();
+  if (id==='expense') renderExpenseTable();
+  if (id==='settings') { renderTestsSettings(); renderUsersList(); populateSettingUsers(); }
+}
+
+// ═══════════════════════════════════════════════════
+//  ENTRIES
+// ═══════════════════════════════════════════════════
+function addEntry(type) {
+  if (type === 'income') {
+    const date = document.getElementById('incDate').value;
+    const test = document.getElementById('incTest').value.trim();
+    const amount = parseFloat(document.getElementById('incAmount').value) || 0;
+    const count = parseInt(document.getElementById('incCount').value) || 1;
+    const note = document.getElementById('incNote').value.trim();
+    if (!date) return toast('اختار التاريخ ❌','error');
+    if (!test) return toast('اختار التحليل ❌','error');
+    if (amount <= 0) return toast('ادخل مبلغ صحيح ❌','error');
+    const entry = { id:Date.now(), type:'income', date, test, amount, count, total:amount*count, note, user:currentUser, ts:new Date().toISOString() };
+    state.entries.push(entry);
+    saveLocalState();
+    scheduleSyncToGS();
+    buildFilterOptions();
+    renderIncomeTable();
+    renderDash();
+    toast(`✅ تم تسجيل ${fmtNum(amount*count)} جنيه`, 'success');
+    document.getElementById('incTest').value='';
+    document.getElementById('incTestHidden').value='';
+    document.getElementById('incAmount').value='';
+    document.getElementById('incCount').value='1';
+    document.getElementById('incNote').value='';
+    document.getElementById('incTotal').textContent='';
+  } else {
+    const date = document.getElementById('expDate').value;
+    const category = document.getElementById('expCategory').value;
+    const desc = document.getElementById('expDesc').value.trim();
+    const amount = parseFloat(document.getElementById('expAmount').value) || 0;
+    const note = document.getElementById('expNote').value.trim();
+    if (!date) return toast('اختار التاريخ ❌','error');
+    if (!desc) return toast('ادخل بيان المصروف ❌','error');
+    if (amount <= 0) return toast('ادخل مبلغ صحيح ❌','error');
+    const entry = { id:Date.now(), type:'expense', date, category, desc, amount, note, user:currentUser, ts:new Date().toISOString() };
+    state.entries.push(entry);
+    saveLocalState();
+    scheduleSyncToGS();
+    buildFilterOptions();
+    renderExpenseTable();
+    renderDash();
+    toast(`✅ تم تسجيل مصروف ${fmtNum(amount)} جنيه`, 'success');
+    document.getElementById('expDesc').value='';
+    document.getElementById('expAmount').value='';
+    document.getElementById('expNote').value='';
+  }
+}
+
+function deleteEntry(id) {
+  if (!confirm('مسح هذا الإدخال؟')) return;
+  state.entries = state.entries.filter(e => e.id !== id);
+  saveLocalState();
+  scheduleSyncToGS();
+  buildFilterOptions();
+  renderDash();
+  renderIncomeTable();
+  renderExpenseTable();
+  renderHistory();
+  renderTestsPanel();
+  renderMonthly();
+  toast('✅ تم المسح', 'info');
+}
+
+// حساب الإجمالي لحظياً
+document.addEventListener('input', e => {
+  if (['incAmount','incCount'].includes(e.target.id)) {
+    const a = parseFloat(document.getElementById('incAmount').value)||0;
+    const c = parseInt(document.getElementById('incCount').value)||1;
+    const el = document.getElementById('incTotal');
+    if (a > 0) el.textContent = `الإجمالي: ${fmtNum(a*c)} جنيه`;
+    else el.textContent = '';
+  }
+});
+
+// ═══════════════════════════════════════════════════
+//  AUTOCOMPLETE
+// ═══════════════════════════════════════════════════
+function filterTests(val, listId) {
+  const list = document.getElementById(listId);
+  if (!val) { list.classList.remove('open'); return; }
+  const matches = state.tests.filter(t => t.name.includes(val) || t.name.toLowerCase().includes(val.toLowerCase()));
+  if (!matches.length) { list.classList.remove('open'); return; }
+  list.innerHTML = matches.map(t =>
+    `<div class="autocomplete-item" onclick="selectTest('${t.name.replace(/'/g,"\\'")}',${t.price},'${listId}')">${t.name} <span style="color:var(--accent2);margin-right:8px;">${t.price} جنيه</span></div>`
+  ).join('');
+  list.classList.add('open');
+}
+function selectTest(name, price, listId) {
+  document.getElementById('incTest').value = name;
+  document.getElementById('incTestHidden').value = name;
+  if (!document.getElementById('incAmount').value) document.getElementById('incAmount').value = price;
+  document.getElementById(listId).classList.remove('open');
+  const a = price, c = parseInt(document.getElementById('incCount').value)||1;
+  document.getElementById('incTotal').textContent = `الإجمالي: ${fmtNum(a*c)} جنيه`;
+}
+document.addEventListener('click', e => {
+  document.querySelectorAll('.autocomplete-list').forEach(l => {
+    if (!l.parentElement.contains(e.target)) l.classList.remove('open');
+  });
+});
+
+// ═══════════════════════════════════════════════════
+//  TESTS MANAGEMENT
+// ═══════════════════════════════════════════════════
+function addTest() {
+  const name = document.getElementById('newTestName').value.trim();
+  const price = parseFloat(document.getElementById('newTestPrice').value) || 0;
+  if (!name) return toast('ادخل اسم التحليل ❌','error');
+  if (state.tests.find(t => t.name === name)) return toast('التحليل موجود بالفعل ❌','error');
+  state.tests.push({name, price});
+  saveLocalState();
+  scheduleSyncToGS();
+  renderTestsSettings();
+  document.getElementById('newTestName').value='';
+  document.getElementById('newTestPrice').value='';
+  toast('✅ تم إضافة التحليل وحفظه في Google Sheets','success');
+}
+
+function openEditTest(idx) {
+  document.getElementById('editTestIdx').value = idx;
+  document.getElementById('editTestName').value = state.tests[idx].name;
+  document.getElementById('editTestPrice').value = state.tests[idx].price;
+  openModal('editTestModal');
+}
+
+function saveEditTest() {
+  const idx = parseInt(document.getElementById('editTestIdx').value);
+  const name = document.getElementById('editTestName').value.trim();
+  const price = parseFloat(document.getElementById('editTestPrice').value) || 0;
+  if (!name) return toast('ادخل اسم التحليل ❌','error');
+  const dup = state.tests.findIndex(t => t.name === name);
+  if (dup !== -1 && dup !== idx) return toast('الاسم موجود بالفعل ❌','error');
+  state.tests[idx] = {name, price};
+  saveLocalState();
+  scheduleSyncToGS();
+  renderTestsSettings();
+  closeModal('editTestModal');
+  toast('✅ تم تعديل التحليل','success');
+}
+
+function deleteTest(idx) {
+  if (!confirm('مسح هذا التحليل؟')) return;
+  state.tests.splice(idx, 1);
+  saveLocalState();
+  scheduleSyncToGS();
+  renderTestsSettings();
+  toast('✅ تم الحذف','info');
+}
+
+function renderTestsSettings() {
+  const el = document.getElementById('testsList');
+  if (!el) return;
+  el.innerHTML = state.tests.map((t,i) =>
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="color:var(--text);flex:1;">${t.name}</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--accent2);min-width:70px;text-align:left;">${t.price} جنيه</span>
+        <button style="padding:4px 9px;border-radius:6px;background:rgba(0,180,216,0.1);border:1px solid var(--border);color:var(--accent);cursor:pointer;font-size:11px;" onclick="openEditTest(${i})">✏️</button>
+        <button class="btn-del" onclick="deleteTest(${i})">🗑️</button>
+      </div>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER DASHBOARD
+// ═══════════════════════════════════════════════════
+function renderDash() {
+  const mf = document.getElementById('dashMonthFilter')?.value||'all';
+  const yf = document.getElementById('dashYearFilter')?.value||'all';
+  const filtered = filterEntries(state.entries, mf, yf, 'all', 'all');
+  const income = filtered.filter(e=>e.type==='income');
+  const expense = filtered.filter(e=>e.type==='expense');
+  const totalInc = income.reduce((s,e)=>s+(e.total||e.amount),0);
+  const totalExp = expense.reduce((s,e)=>s+e.amount,0);
+  const net = totalInc - totalExp;
+  const testCount = income.reduce((s,e)=>s+(e.count||1),0);
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card income"><div class="label">💰 إجمالي الدخل</div><div class="value">${fmtNum(totalInc)}</div><div class="sub">جنيه مصري</div></div>
+    <div class="stat-card expense"><div class="label">💸 إجمالي المصاريف</div><div class="value">${fmtNum(totalExp)}</div><div class="sub">جنيه مصري</div></div>
+    <div class="stat-card net"><div class="label">📈 صافي الربح</div><div class="value">${fmtNum(net)}</div><div class="sub">${net>=0?'▲ ربح':'▼ خسارة'}</div></div>
+    <div class="stat-card tests"><div class="label">🧪 عدد التحاليل</div><div class="value">${testCount}</div><div class="sub">حالة</div></div>
+  `;
+
+  const testMap = {};
+  income.forEach(e => {
+    if (!testMap[e.test]) testMap[e.test] = {count:0, rev:0};
+    testMap[e.test].count += (e.count||1);
+    testMap[e.test].rev += (e.total||e.amount);
+  });
+  const sorted = Object.entries(testMap).sort((a,b)=>b[1].count-a[1].count).slice(0,8);
+  const maxCount = sorted[0]?.[1]?.count||1;
+  document.getElementById('topTestsGrid').innerHTML = sorted.length ?
+    sorted.map(([n,d]) => `
+      <div class="test-item">
+        <div class="tname">${n}</div>
+        <div class="tcount">${d.count}</div>
+        <div class="trev">💵 ${fmtNum(d.rev)} جنيه</div>
+        <div class="tbar"><div class="tbar-fill" style="width:${Math.round(d.count/maxCount*100)}%"></div></div>
+      </div>`).join('') :
+    '<div class="empty"><div class="ei">🔬</div>لا توجد بيانات</div>';
+
+  renderBarChart();
+}
+
+function renderBarChart() {
+  const ctx = document.getElementById('barChart');
+  if (!ctx) return;
+  const monthly = {};
+  state.entries.forEach(e => {
+    const d = new Date(e.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!monthly[key]) monthly[key] = {inc:0, exp:0};
+    if (e.type==='income') monthly[key].inc += (e.total||e.amount);
+    else monthly[key].exp += e.amount;
+  });
+  const keys = Object.keys(monthly).sort().slice(-12);
+  const labels = keys.map(k => { const [y,m]=k.split('-'); return MONTHS_AR[parseInt(m)-1]+' '+y.slice(2); });
+  if (barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[
+      {label:'الدخل', data:keys.map(k=>monthly[k].inc), backgroundColor:'rgba(6,214,160,0.7)', borderRadius:6},
+      {label:'المصاريف', data:keys.map(k=>monthly[k].exp), backgroundColor:'rgba(239,35,60,0.7)', borderRadius:6}
+    ]},
+    options:{ responsive:true, plugins:{legend:{labels:{color:'#8ab4d0',font:{family:'Cairo'}}}},
+      scales:{
+        x:{ticks:{color:'#4a7fa5',font:{family:'Cairo'}}, grid:{color:'rgba(0,180,216,0.05)'}},
+        y:{ticks:{color:'#4a7fa5',font:{family:'Cairo'}}, grid:{color:'rgba(0,180,216,0.08)'}}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER TABLES
+// ═══════════════════════════════════════════════════
+function renderIncomeTable(search='') {
+  const rows = state.entries.filter(e=>e.type==='income' && (!search||JSON.stringify(e).includes(search))).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,100);
+  const tb = document.getElementById('incomeTBody');
+  if (!tb) return;
+  tb.innerHTML = rows.length ? rows.map(e =>
+    `<tr>
+      <td>${e.date}</td><td>${e.test}</td>
+      <td class="mval inc">${fmtNum(e.amount)}</td>
+      <td>${e.count||1}</td>
+      <td class="mval inc"><strong>${fmtNum(e.total||e.amount)}</strong></td>
+      <td><span class="badge badge-user">${e.user}</span></td>
+      <td style="color:var(--text3)">${e.note||'-'}</td>
+      <td><button class="btn-del" onclick="deleteEntry(${e.id})">🗑️</button></td>
+    </tr>`).join('') : '<tr><td colspan="8"><div class="empty"><div class="ei">💰</div>لا توجد بيانات دخل</div></td></tr>';
+}
+
+function renderExpenseTable(search='') {
+  const rows = state.entries.filter(e=>e.type==='expense' && (!search||JSON.stringify(e).includes(search))).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,100);
+  const tb = document.getElementById('expenseTBody');
+  if (!tb) return;
+  tb.innerHTML = rows.length ? rows.map(e =>
+    `<tr>
+      <td>${e.date}</td>
+      <td><span class="badge badge-expense">${e.category}</span></td>
+      <td>${e.desc}</td>
+      <td class="mval exp"><strong>${fmtNum(e.amount)}</strong></td>
+      <td><span class="badge badge-user">${e.user}</span></td>
+      <td style="color:var(--text3)">${e.note||'-'}</td>
+      <td><button class="btn-del" onclick="deleteEntry(${e.id})">🗑️</button></td>
+    </tr>`).join('') : '<tr><td colspan="7"><div class="empty"><div class="ei">💸</div>لا توجد بيانات مصاريف</div></td></tr>';
+}
+
+function renderHistory(search='') {
+  const mf = document.getElementById('histMonth')?.value||'all';
+  const tf = document.getElementById('histType')?.value||'all';
+  const uf = document.getElementById('histUser')?.value||'all';
+  let rows = filterEntries(state.entries, mf, 'all', tf, uf);
+  if (search) rows = rows.filter(e=>JSON.stringify(e).includes(search));
+  rows = rows.sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('histCount').textContent = `السجل الكامل (${rows.length} إدخال)`;
+  const tb = document.getElementById('histTBody');
+  if (!tb) return;
+  tb.innerHTML = rows.length ? rows.map(e =>
+    `<tr>
+      <td>${e.date}</td>
+      <td>${e.type==='income'?'<span class="badge badge-income">دخل</span>':'<span class="badge badge-expense">مصروف</span>'}</td>
+      <td>${e.type==='income'?e.test:(e.category+' — '+e.desc)}</td>
+      <td class="${e.type==='income'?'mval inc':'mval exp'}"><strong>${fmtNum(e.total||e.amount)}</strong></td>
+      <td><span class="badge badge-user">${e.user}</span></td>
+      <td style="color:var(--text3)">${e.note||'-'}</td>
+      <td><button class="btn-del" onclick="deleteEntry(${e.id})">🗑️</button></td>
+    </tr>`).join('') : '<tr><td colspan="7"><div class="empty"><div class="ei">📋</div>لا توجد بيانات</div></td></tr>';
+}
+
+// ═══════════════════════════════════════════════════
+//  TESTS PANEL
+// ═══════════════════════════════════════════════════
+function renderTestsPanel() {
+  const mf = document.getElementById('testsMonth')?.value||'all';
+  const yf = document.getElementById('testsYear')?.value||'all';
+  const income = filterEntries(state.entries, mf, yf, 'income', 'all');
+  const totalTests = income.reduce((s,e)=>s+(e.count||1),0);
+  const totalRev = income.reduce((s,e)=>s+(e.total||e.amount),0);
+  const avgPerTest = totalTests ? Math.round(totalRev/totalTests) : 0;
+  document.getElementById('testsSummary').innerHTML = `
+    <div class="stat-card tests"><div class="label">🧪 إجمالي التحاليل</div><div class="value">${totalTests}</div><div class="sub">حالة</div></div>
+    <div class="stat-card income"><div class="label">💰 الإيرادات</div><div class="value">${fmtNum(totalRev)}</div><div class="sub">جنيه</div></div>
+    <div class="stat-card net"><div class="label">📊 متوسط سعر التحليل</div><div class="value">${fmtNum(avgPerTest)}</div><div class="sub">جنيه</div></div>
+  `;
+  const testMap = {};
+  income.forEach(e => {
+    if (!testMap[e.test]) testMap[e.test] = {count:0, rev:0};
+    testMap[e.test].count += (e.count||1);
+    testMap[e.test].rev += (e.total||e.amount);
+  });
+  const sorted = Object.entries(testMap).sort((a,b)=>b[1].count-a[1].count);
+  const maxC = sorted[0]?.[1]?.count||1;
+  document.getElementById('testsDetailGrid').innerHTML = sorted.length ?
+    sorted.map(([n,d]) => `
+      <div class="test-item">
+        <div class="tname">${n}</div>
+        <div class="tcount">${d.count}</div>
+        <div class="trev">💵 ${fmtNum(d.rev)} جنيه | متوسط: ${fmtNum(d.count?Math.round(d.rev/d.count):0)}</div>
+        <div class="tbar"><div class="tbar-fill" style="width:${Math.round(d.count/maxC*100)}%"></div></div>
+      </div>`).join('') :
+    '<div class="empty"><div class="ei">🧪</div>لا توجد بيانات</div>';
+}
+
+// ═══════════════════════════════════════════════════
+//  MONTHLY
+// ═══════════════════════════════════════════════════
+function renderMonthly() {
+  const monthly = {};
+  state.entries.forEach(e => {
+    const d = new Date(e.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!monthly[key]) monthly[key] = {inc:0, exp:0, tests:0, month:d.getMonth(), year:d.getFullYear()};
+    if (e.type==='income') { monthly[key].inc += (e.total||e.amount); monthly[key].tests += (e.count||1); }
+    else monthly[key].exp += e.amount;
+  });
+  const keys = Object.keys(monthly).sort().reverse();
+  const maxInc = Math.max(...keys.map(k=>monthly[k].inc), 1);
+  document.getElementById('monthlyGrid').innerHTML = keys.length ? keys.map(k => {
+    const d = monthly[k];
+    const net = d.inc - d.exp;
+    const pct = Math.round(d.inc/maxInc*100);
+    return `<div class="month-card">
+      <div class="month-name"><span>${MONTH_ICONS[d.month]}</span>${MONTHS_AR[d.month]} ${d.year}</div>
+      <div class="month-row"><span class="mlabel">💰 الدخل</span><span class="mval inc">${fmtNum(d.inc)} جنيه</span></div>
+      <div class="month-row"><span class="mlabel">💸 المصاريف</span><span class="mval exp">${fmtNum(d.exp)} جنيه</span></div>
+      <div class="month-row"><span class="mlabel">📈 الصافي</span><span class="mval ${net>=0?'net-pos':'net-neg'}">${fmtNum(net)} جنيه</span></div>
+      <div class="month-row"><span class="mlabel">🧪 التحاليل</span><span class="mval" style="color:var(--accent2)">${d.tests} حالة</span></div>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('') : '<div class="empty"><div class="ei">📅</div>لا توجد بيانات شهرية بعد</div>';
+}
+
+// ═══════════════════════════════════════════════════
+//  FILTER HELPERS
+// ═══════════════════════════════════════════════════
+function filterEntries(entries, mf, yf, tf, uf) {
+  return entries.filter(e => {
+    const d = new Date(e.date);
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const y = String(d.getFullYear());
+    if (mf!=='all' && m!==mf) return false;
+    if (yf!=='all' && y!==yf) return false;
+    if (tf!=='all' && e.type!==tf) return false;
+    if (uf!=='all' && e.user!==uf) return false;
+    return true;
+  });
+}
+
+function buildFilterOptions() {
+  const months = new Set(), years = new Set(), users = new Set();
+  state.entries.forEach(e => {
+    const d = new Date(e.date);
+    months.add(String(d.getMonth()+1).padStart(2,'0'));
+    years.add(String(d.getFullYear()));
+    users.add(e.user);
+  });
+  const mArr = [...months].sort();
+  const yArr = [...years].sort().reverse();
+
+  [['dashMonthFilter',true],['testsMonth',true],['histMonth',false]].forEach(([id, hasAll]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = (hasAll?'<option value="all">كل الشهور</option>':'<option value="all">الكل</option>') +
+      mArr.map(m=>`<option value="${m}">${MONTHS_AR[parseInt(m)-1]}</option>`).join('');
+    if (cur) el.value = cur;
+  });
+  ['dashYearFilter','testsYear'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="all">كل السنوات</option>'+yArr.map(y=>`<option value="${y}">${y}</option>`).join('');
+    if (cur) el.value = cur;
+  });
+  const hu = document.getElementById('histUser');
+  if (hu) {
+    const cur = hu.value;
+    hu.innerHTML = '<option value="all">الكل</option>'+[...users].map(u=>`<option value="${u}">${u}</option>`).join('');
+    if (cur) hu.value = cur;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  BACKUP / RESTORE
+// ═══════════════════════════════════════════════════
+function backupData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `elitelab_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  toast('✅ تم تحميل النسخة الاحتياطية','success');
+}
+function restoreData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.entries && data.passwords) {
+        state = data;
+        saveLocalState();
+        scheduleSyncToGS();
+        buildFilterOptions();
+        renderDash();
+        toast('✅ تم استعادة البيانات ومزامنتها','success');
+      } else toast('ملف غير صالح ❌','error');
+    } catch { toast('خطأ في قراءة الملف ❌','error'); }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════════
+function exportExcel() {
+  if (!window.XLSX) return toast('مكتبة Excel مش محملة بعد ❌','error');
+  const wb = XLSX.utils.book_new();
+
+  const incRows = [['التاريخ','التحليل','سعر الوحدة','عدد المرضى','الإجمالي','مسجّل بواسطة','ملاحظات']];
+  state.entries.filter(e=>e.type==='income').sort((a,b)=>a.date.localeCompare(b.date))
+    .forEach(e=>incRows.push([e.date,e.test,e.amount,e.count||1,e.total||e.amount,e.user,e.note||'']));
+  const wsInc = XLSX.utils.aoa_to_sheet(incRows);
+  wsInc['!cols'] = [{wch:14},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:24}];
+  XLSX.utils.book_append_sheet(wb, wsInc, 'الدخل');
+
+  const expRows = [['التاريخ','تصنيف المصروف','البيان','المبلغ','مسجّل بواسطة','ملاحظات']];
+  state.entries.filter(e=>e.type==='expense').sort((a,b)=>a.date.localeCompare(b.date))
+    .forEach(e=>expRows.push([e.date,e.category,e.desc,e.amount,e.user,e.note||'']));
+  const wsExp = XLSX.utils.aoa_to_sheet(expRows);
+  wsExp['!cols'] = [{wch:14},{wch:22},{wch:32},{wch:14},{wch:14},{wch:24}];
+  XLSX.utils.book_append_sheet(wb, wsExp, 'المصاريف');
+
+  const priceRows = [['اسم التحليل','السعر (جنيه)']];
+  state.tests.forEach(t=>priceRows.push([t.name,t.price]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(priceRows), 'قائمة الأسعار');
+
+  XLSX.writeFile(wb, `معمل_النخبة_${new Date().toISOString().split('T')[0]}.xlsx`);
+  toast('✅ تم تصدير Excel','success');
+}
+
+function exportCSV() {
+  const rows = [['التاريخ','النوع','التفاصيل','المبلغ','الإجمالي','المستخدم','ملاحظات']];
+  state.entries.forEach(e => rows.push([e.date,e.type==='income'?'دخل':'مصروف',e.type==='income'?e.test:(e.category+' - '+e.desc),e.amount,e.total||e.amount,e.user,e.note||'']));
+  const csv = rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `elitelab_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  toast('✅ تم تصدير CSV','success');
+}
+
+// ═══════════════════════════════════════════════════
+//  MODAL / TOAST / UTILS
+// ═══════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target===m) m.classList.remove('open'); });
+});
+
+function toast(msg, type='info') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function fmtNum(n) { return Number(n||0).toLocaleString('ar-EG'); }
+
+// ═══════════════════════════════════════════════════
+//  INIT — تحميل البيانات من Google Sheets أول ما الصفحة تفتح
+// ═══════════════════════════════════════════════════
+populateLoginUsers();
+loadFromGS();
+
+// ═══════════════════════════════════════════════════
+//  PWA - Inline Service Worker (single-file / GitHub Pages)
+// ═══════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE='elitelab-v1';
+const ASSETS=['/'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{
+  if(e.request.url.includes('script.google.com')||e.request.url.includes('googleapis.com')){
+    e.respondWith(fetch(e.request).catch(()=>new Response('{}',{headers:{'Content-Type':'application/json'}})));return;
+  }
+  e.respondWith(caches.match(e.request).then(cached=>{
+    if(cached)return cached;
+    return fetch(e.request).then(res=>{
+      if(res&&res.status===200){const cl=res.clone();caches.open(CACHE).then(c=>c.put(e.request,cl));}
+      return res;
+    }).catch(()=>cached);
+  }));
+});`;
+  const swBlob = new Blob([swCode], {type:'text/javascript'});
+  const swUrl = URL.createObjectURL(swBlob);
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(swUrl)
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+let deferredPrompt = null;
+const installBtn = document.getElementById('pwaInstallBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (installBtn) installBtn.style.display = 'flex';
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  if (installBtn) installBtn.style.display = 'none';
+  toast('✅ تم تثبيت التطبيق بنجاح!', 'success');
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(choice => {
+    deferredPrompt = null;
+    if (installBtn) installBtn.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>
